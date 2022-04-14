@@ -159,8 +159,8 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
                 universal_newlines = True)
   msg += ret.stdout + "\n"
 
-  root_password = secrets.token_urlsafe()
-  user_password = secrets.token_urlsafe()
+  root_password = "root"
+  user_password = "colab123"
   user_name = "colab"
   msg += "✂️"*24 + "\n"
   msg += f"root password: {root_password}\n"
@@ -218,17 +218,16 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
         break
     if hostname == None:
       raise RuntimeError("Failed to get user hostname from cloudflared")
-    ssh_common_options += " -oProxyCommand=\"cloudflared access ssh --hostname %h\""
 
   msg += "---\n"
   if is_VNC:
     msg += "Execute following command on your local machine and login before running TurboVNC viewer:\n"
     msg += "✂️"*24 + "\n"
-    msg += f"ssh {ssh_common_options} -L 5901:localhost:5901 {user_name}@{hostname}\n"
+    msg += f"ssh -L 5901:localhost:5901 {user_name}@{hostname}\n"
   else:
     msg += "Command to connect to the ssh server:\n"
     msg += "✂️"*24 + "\n"
-    msg += f"ssh {ssh_common_options} {user_name}@{hostname}\n"
+    msg += f"ssh {user_name}@{hostname}\n"
     msg += "✂️"*24 + "\n"
   return msg
 
@@ -357,13 +356,16 @@ def _setupVNC():
   libjpeg_url = "https://github.com/demotomohiro/turbovnc/releases/download/2.2.5/libjpeg-turbo-official_{0}_amd64.deb".format(libjpeg_ver)
   virtualGL_url = "https://github.com/demotomohiro/turbovnc/releases/download/2.2.5/virtualgl_{0}_amd64.deb".format(virtualGL_ver)
   turboVNC_url = "https://github.com/demotomohiro/turbovnc/releases/download/2.2.5/turbovnc_{0}_amd64.deb".format(turboVNC_ver)
+  virtualGL32_url = "https://www.dropbox.com/s/fb7ay14a70p8fmy/virtualgl32_3.0_amd64.deb?raw=1"
 
   _download(libjpeg_url, "libjpeg-turbo.deb")
   _download(virtualGL_url, "virtualgl.deb")
+  _download(virtualGL_url, "virtualgl32.deb")
   _download(turboVNC_url, "turbovnc.deb")
   my_apt = _MyApt()
   my_apt.installDebPackage("libjpeg-turbo.deb")
   my_apt.installDebPackage("virtualgl.deb")
+  my_apt.installDebPackage("virtualgl32.deb")
   my_apt.installDebPackage("turbovnc.deb")
 
   my_apt.installPkg("xfce4", "xfce4-terminal")
@@ -385,8 +387,8 @@ no-x11-tcp-connections
   vncrun_py.write_text("""\
 import subprocess, secrets, pathlib
 
-vnc_passwd = secrets.token_urlsafe()[:8]
-vnc_viewonly_passwd = secrets.token_urlsafe()[:8]
+vnc_passwd = "colab123"
+vnc_viewonly_passwd = "vocolab123"
 print("✂️"*24)
 print("VNC password: {}".format(vnc_passwd))
 print("VNC view only password: {}".format(vnc_viewonly_passwd))
